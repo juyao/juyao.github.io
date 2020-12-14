@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="ch">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="一、底层原理 理解（技术的深化学习，秒变理论派大牛） 1、（技术分享-底层原理）深入理解RXJava，从应用到底层 深入理解思想，以后开发中可以借鉴思想  1.1 http:&#x2F;&#x2F;rkhcy.github.io&#x2F;2017&#x2F;12&#x2F;13&#x2F;图解RxJava2(一)&#x2F; 1.2 http:&#x2F;&#x2F;rkhcy.github.io&#x2F;2017&#x2F;12&#x2F;21&#x2F;图解RxJava2(二)&#x2F; 2、Android Layout i">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android技术进阶">
+<meta property="og:url" content="http://example.com/2020/10/03/Android%E6%8A%80%E6%9C%AF%E8%BF%9B%E9%98%B6/index.html">
+<meta property="og:site_name" content="鞠昕玥 HappyEveryDay">
+<meta property="og:description" content="一、底层原理 理解（技术的深化学习，秒变理论派大牛） 1、（技术分享-底层原理）深入理解RXJava，从应用到底层 深入理解思想，以后开发中可以借鉴思想  1.1 http:&#x2F;&#x2F;rkhcy.github.io&#x2F;2017&#x2F;12&#x2F;13&#x2F;图解RxJava2(一)&#x2F; 1.2 http:&#x2F;&#x2F;rkhcy.github.io&#x2F;2017&#x2F;12&#x2F;21&#x2F;图解RxJava2(二)&#x2F; 2、Android Layout i">
+<meta property="og:locale">
+<meta property="article:published_time" content="2020-10-03T03:06:28.000Z">
+<meta property="article:modified_time" content="2020-12-14T16:03:11.622Z">
+<meta property="article:author" content="San Tu">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://example.com/2020/10/03/Android%E6%8A%80%E6%9C%AF%E8%BF%9B%E9%98%B6/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'ch'
+  };
+</script>
+
+  <title>Android技术进阶 | 鞠昕玥 HappyEveryDay</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">鞠昕玥 HappyEveryDay</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">爱一直在</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="ch">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/10/03/Android%E6%8A%80%E6%9C%AF%E8%BF%9B%E9%98%B6/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="San Tu">
+      <meta itemprop="description" content="希望鞠昕玥小朋友开心每一天">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="鞠昕玥 HappyEveryDay">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Android技术进阶
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2020-10-03 11:06:28" itemprop="dateCreated datePublished" datetime="2020-10-03T11:06:28+08:00">2020-10-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2020-12-15 00:03:11" itemprop="dateModified" datetime="2020-12-15T00:03:11+08:00">2020-12-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E7%A7%AF%E7%B4%AF/" itemprop="url" rel="index"><span itemprop="name">技术积累</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p><strong>一、底层原理 理解（技术的深化学习，秒变理论派大牛）</strong></p>
+<p>1、（技术分享-底层原理）深入理解RXJava，从应用到底层 深入理解思想，以后开发中可以借鉴思想 </p>
+<p>1.1 <a target="_blank" rel="noopener" href="http://rkhcy.github.io/2017/12/13/%E5%9B%BE%E8%A7%A3RxJava2(%E4%B8%80)/">http://rkhcy.github.io/2017/12/13/图解RxJava2(一)/</a></p>
+<p>1.2 <a target="_blank" rel="noopener" href="http://rkhcy.github.io/2017/12/21/%E5%9B%BE%E8%A7%A3RxJava2(%E4%BA%8C)/">http://rkhcy.github.io/2017/12/21/图解RxJava2(二)/</a></p>
+<p>2、<a target="_blank" rel="noopener" href="https://yq.aliyun.com/articles/4135?spm=5176.blog4136.yqblogcon1.9.9Tup46">Android Layout inflate过程分析(1)</a></p>
+<a id="more"></a>
+
+<p>3、<a target="_blank" rel="noopener" href="http://wingjay.com/2018/02/11/java-dynamic-proxy/">java动态代理、静态代理机制</a></p>
+<p>4、<a target="_blank" rel="noopener" href="https://crossoverjie.top/2018/02/06/LinkedHashMap/">LinkedHashMap 底层原理</a></p>
+<p>5、<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/f8489db1926b">Android自定义注解原理及使用技巧</a></p>
+<p>6、<a target="_blank" rel="noopener" href="http://www.cheelok.com/aosp/196">ANDROID消息机制，从JAVA层到NATIVE层剖析</a></p>
+<p>7、<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/cdb5ee8de2d4">深入理解ButterKnife 源码与原理</a></p>
+<p>8、<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/407afb4a267a">Java集合源码分析之开篇</a></p>
+<p><a target="_blank" rel="noopener" href="https://jsonchao.github.io/">Deep into Android</a> 推荐</p>
+<p><a target="_blank" rel="noopener" href="https://jsonchao.github.io/2018/01/12/Android%20%E6%8F%92%E4%BB%B6%E5%8C%96/">安卓插件化历程</a></p>
+<p><strong>二、架构设计方面（自己设计的架构、或者别人架构的分享，提升架构能力，control任何业务场景）</strong></p>
+<p>1、<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/K0RO343pEgjk4J4i6HoioA">（技术分享-架构设计）短视频SDK架构设计</a></p>
+<p>2、<a target="_blank" rel="noopener" href="https://blog.csdn.net/dd864140130/article/details/53645290">Android 模块化、组件化</a></p>
+<p>3、<a target="_blank" rel="noopener" href="https://tech.meituan.com/meituan_food_delivery_android_architecture_evolution.html">美团外卖架构演进之路</a> </p>
+<p>4、<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzAxNDUwMzU3Mw==&mid=401044540&idx=1&sn=24b7d8fb655ae6dd5d989d0cb3c08e90">饿了么移动App架构演进</a></p>
+<p>5、<a target="_blank" rel="noopener" href="https://blog.csdn.net/u010687392/article/details/47121729?hmsr=toutiao.io">插件化开发—动态加载技术加载已安装和未安装的apk</a></p>
+<p>6、<a target="_blank" rel="noopener" href="https://blog.csdn.net/u010897392/article/details/80449431">Android组件化 实施方案（比较全面，推荐看）</a></p>
+<p>7、<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/bKMoMiXoRWiHP2j9kJR87Q">爱奇艺开源其apk包精细化分析解决方案dexSplitter</a></p>
+<p><strong>三、算法、设计模式（理论）</strong></p>
+<p>1、<a target="_blank" rel="noopener" href="http://jcodecraeer.com/a/anzhuokaifa/2017/1020/8625.html">MVP架构搭建</a></p>
+<p>2、<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/1a9f571ad7c0">从Android代码中来记忆23种设计模式与六大原则</a>、<a target="_blank" rel="noopener" href="https://github.com/simple-android-framework-exchange/android_design_patterns_analysis">Android设计模式Git 实例23种</a></p>
+<p>设计模式分为三种类型：（1）创建型模式5种：单例模式，抽象工厂模式，工厂模式，原型模式，建造者模式。（口诀：单原建造者，东西二厂）（2）结构型模式7种：适配器模式，桥接模式，装饰模式，组合模式，外观模式，享元模式，代理模式。（口诀：一器一桥一元一代理；装饰组合外观）（3）行为型模式11种：观察者模式，中介者模式，访问者模式，解释器模式，迭代器模式，备忘录模式，责任链模式，状态模式，策略模式，命令模式，模板模式。（口诀：三者两器、一录一链一模板，状态策略命令）</p>
+<p>3、<a target="_blank" rel="noopener" href="https://www.cnblogs.com/damsoft/p/6105122.html">单例模式的优缺点和使用场景</a></p>
+<p>4、<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/vgk5ZotQxvOh6DLxsQ2oBA">Java责任链模式</a></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/LRH1993/android_interview/blob/master/algorithm/For-offer.md">剑指offer</a></li>
+<li><a target="_blank" rel="noopener" href="https://github.com/LRH1993/android_interview/blob/master/algorithm/leetcode.md">LeetCode</a></li>
+</ul>
+<p><strong>四、经验总结、解决方案分析</strong></p>
+<p>1、<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/b66c225c19e2?hmsr=toutiao.io&utm_medium=toutiao.io&utm_source=toutiao.io">Android WebView独立进程解决方案</a></p>
+<p>2、<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/LPcG1E3A4EVsD47auA-iwA">一种Android App在Native层动态加载so库的方案</a></p>
+<p>3、<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/C1ZOoZ8ugNAeAo4aLv1OKw">腾讯大神教你如何解决android内存泄露</a></p>
+<p>4、<a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=http://mp.weixin.qq.com/s/CGJ37CefUZs65JlEKFwTsg">Android 窗口绘制的一些总结</a></p>
+<p>5、<a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=http://mp.weixin.qq.com/s/V_bt-TWTyWAFoYyI0FSQhQ">Android 支付宝开发流程</a></p>
+<p>6、<a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=http://mp.weixin.qq.com/s/6w0tMtDA9kPwo0E9xq_BsA">Android 进程保活</a></p>
+<p>7、<a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=http://mp.weixin.qq.com/s/5JjhGwSUkP4XMTBFg942pA">这种 Unicode 符号，让百万人中招下了假应用</a></p>
+<p>8、<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/tO1yxFs2qNQlQ2bJ8vGzQA">Probe：Android线上OOM问题定位组件-美团</a></p>
+<p><strong>五、酷炫的类库分享</strong></p>
+<p><strong>六、开发技巧，提升效率</strong></p>
+<p>1、<a target="_blank" rel="noopener" href="http://android.jobbole.com/82423/">关于JenKins自动构建android、ios应用</a></p>
+<p><strong>七、新技术学习</strong></p>
+<p><strong>一、ARCode 相关</strong></p>
+<p>1、<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/wpnGtyIvH3nL8Nkm32NZIQ">Google ARcode1.0</a></p>
+<p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzAwODY4OTk2Mg==&mid=2652044627&idx=1&sn=650265fd1d7023b95fb043432d7ecbe3&chksm=808d5d16b7fad400cafe96469396850691349fbcafbe52b7a35c333a79545cef84e8fd8d9b52&scene=21#wechat_redirect">2、四分钟内明白ARCode + 上手</a></p>
+<p>3、<a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/wpnGtyIvH3nL8Nkm32NZIQ">AR sdk 参照</a></p>
+<p><strong>八、软实力提升的文章</strong></p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/1M2DnMC5nW9i05bMT-l2HA">程序员业余时间修炼指南</a></li>
+</ol>
+<p><strong>九、实战问题汇总（可以放大厂的面试问题啊等等，可以看知识面的广度和深度，看问题，对比自己欠缺在哪里）</strong></p>
+<p><strong><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/a07ccaad832d">https://www.jianshu.com/p/a07ccaad832d</a></strong></p>
+<p><strong><a target="_blank" rel="noopener" href="https://blog.csdn.net/u013110200/article/details/55189212?utm_source=itdadao&utm_medium=referral">https://blog.csdn.net/u013110200/article/details/55189212?utm_source=itdadao&amp;utm_medium=referral</a></strong></p>
+<p><strong><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s/zIcEuP4NKtYCl_WDAeB77Q">线程池成长之路（什么是线程池、有哪些、区别是什么，适用条件有哪些等）</a></strong></p>
+<p><strong><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzIwMDY0Nzk2Mw==&mid=2650319352&idx=1&sn=58a77c2ef58784fdb93565f91c6ee1fa&chksm=8ef5fd8cb982749a04a609f75fa0f3c5d62f2400bc1b62b0f15fdaf8ff0f7bf6e6eb98689adb&scene=21#wechat_redirect">实现多线程的方式与区别</a></strong></p>
+<p><strong><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzIwMDY0Nzk2Mw==&mid=2650319298&idx=1&sn=674ad268a974e9737b063eb06b46782f&chksm=8ef5fdb6b98274a0724ff195260554604886070e427d55e4bdcb6c3c9ed85e49ba4e7f3fb1f1&scene=21#wechat_redirect">注解相关知识理解（注解是啥、有哪些、自定义注解、使用场景等）</a></strong></p>
+<p><strong><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzIwMDY0Nzk2Mw==&mid=2650319341&idx=1&sn=d44e4b6fa41e81be90ae56305a9b1711&chksm=8ef5fd99b982748fa12e0e2cac0ef9e831f01c26f92f1b3eb6e7f1e6022dfa52cc7b6687b2bc&scene=21#wechat_redirect">反射相关知识（什么是反射、优缺点、适用场景等）</a></strong></p>
+<p><strong>十、推荐的博主网站</strong></p>
+<p><strong>1、<a target="_blank" rel="noopener" href="https://www.jianshu.com/u/ba8e77e47f0c">简书上每周一更不停歇的博主</a></strong></p>
+<p><strong>2、</strong><a target="_blank" rel="noopener" href="https://blog.csdn.net/luoshengyang">有名的老罗 大家都懂</a></p>
+<p>3、<a target="_blank" rel="noopener" href="http://www.androidblog.cn/">Android技术周刊</a></p>
+<p>4、<a target="_blank" rel="noopener" href="https://www.jianshu.com/u/f690947ed5a6">简书技术控</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.wanandroid.com/">https://www.wanandroid.com/</a> 推荐</p>
+<p>简书:<a target="_blank" rel="noopener" href="https://www.jianshu.com/">http://www.jianshu.com/</a></p>
+<p>csdn:<a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=http://blog.csdn.net/">http://blog.csdn.net/</a></p>
+<p>泡在网上的日子：<a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=http://jcodecraeer.com/plus/list.php">http://jcodecraeer.com/plus/list.php</a></p>
+<p>掘金：<a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=https://juejin.im/welcome">https://juejin.im/welcome</a></p>
+<p>干货网：<a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=http://gank.io/">http://gank.io/</a></p>
+<p>stackoverflow: <a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=http://stackoverflow.com/">http://stackoverflow.com/</a></p>
+<p>github：<a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=https://github.com/">https://github.com/</a></p>
+<p>Android博客周刊：<a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=http://www.androidblog.cn/">http://www.androidblog.cn/</a></p>
+<p>codekk：<a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=http://p.codekk.com/">http://p.codekk.com/</a></p>
+<p>MobDevGroup：<a target="_blank" rel="noopener" href="https://link.jianshu.com/?t=http://mobdevgroup.com/tools/android">http://mobdevgroup.com/tools/android</a></p>
+
+    </div>
+
+    
+    
+    
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/uploads/wechat-qcode.jpg">
+            <span class="icon">
+              <i class="fab fa-weixin"></i>
+            </span>
+
+            <span class="label">WeChat</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android/" rel="tag"># Android</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2020/10/23/Android%E5%AE%8C%E6%95%B4%E7%9F%A5%E8%AF%86%E4%BD%93%E7%B3%BB%20/" rel="next" title="Android完整知识体系">
+      Android完整知识体系 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">San Tu</p>
+  <div class="site-description" itemprop="description">希望鞠昕玥小朋友开心每一天</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/juyao" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;juyao" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/juyao0909@gmail.com" title="E-Mail → juyao0909@gmail.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/aiyujie1314" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;aiyujie1314" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1356350562&auto=1&height=66"></iframe>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">San Tu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+    <script defer src="/lib/three/three-waves.min.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
