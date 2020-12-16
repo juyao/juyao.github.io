@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ch">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="提纲 什么是LivaData LiveData衍生类 LiveData核心方法 LiveData事件分发实现原理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="livedata架构组件原理解析">
+<meta property="og:url" content="http://example.com/2020/12/16/%E6%9E%B6%E6%9E%84%E7%BB%84%E4%BB%B6%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/index.html">
+<meta property="og:site_name" content="鞠昕玥 HappyEveryDay">
+<meta property="og:description" content="提纲 什么是LivaData LiveData衍生类 LiveData核心方法 LiveData事件分发实现原理">
+<meta property="og:locale">
+<meta property="og:image" content="https://juxinyue.oss-cn-hangzhou.aliyuncs.com/5ee8243109c6b1c211470764.png?Expires=1608131336&OSSAccessKeyId=TMP.3KdayMHqr52vE1TonAijnMY1hksV2KDznwRURfdJY3WfgWUshDBzCLbunqv9JQQ1sZirjmnU9kpFMfpff6MjeeJmREU8HD&Signature=smpYlrSEN5Nil2jEiUIIsaBb08s=">
+<meta property="article:published_time" content="2020-12-16T14:11:19.000Z">
+<meta property="article:modified_time" content="2020-12-16T15:07:18.328Z">
+<meta property="article:author" content="San Tu">
+<meta property="article:tag" content="Android">
+<meta property="article:tag" content="Jetpack">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://juxinyue.oss-cn-hangzhou.aliyuncs.com/5ee8243109c6b1c211470764.png?Expires=1608131336&OSSAccessKeyId=TMP.3KdayMHqr52vE1TonAijnMY1hksV2KDznwRURfdJY3WfgWUshDBzCLbunqv9JQQ1sZirjmnU9kpFMfpff6MjeeJmREU8HD&Signature=smpYlrSEN5Nil2jEiUIIsaBb08s=">
+
+<link rel="canonical" href="http://example.com/2020/12/16/%E6%9E%B6%E6%9E%84%E7%BB%84%E4%BB%B6%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'ch'
+  };
+</script>
+
+  <title>livedata架构组件原理解析 | 鞠昕玥 HappyEveryDay</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?f58d8dc38453662b64d98dbcd800759b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">鞠昕玥 HappyEveryDay</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">爱一直在</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="ch">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2020/12/16/%E6%9E%B6%E6%9E%84%E7%BB%84%E4%BB%B6%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="San Tu">
+      <meta itemprop="description" content="希望鞠昕玥小朋友开心每一天">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="鞠昕玥 HappyEveryDay">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          livedata架构组件原理解析
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-12-16 22:11:19 / Modified: 23:07:18" itemprop="dateCreated datePublished" datetime="2020-12-16T22:11:19+08:00">2020-12-16</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E7%A7%AF%E7%B4%AF/" itemprop="url" rel="index"><span itemprop="name">技术积累</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="提纲"><a href="#提纲" class="headerlink" title="提纲"></a>提纲</h1><ul>
+<li>什么是LivaData</li>
+<li>LiveData衍生类</li>
+<li>LiveData核心方法</li>
+<li>LiveData事件分发实现原理<a id="more"></a>
+
+</li>
+</ul>
+<h2 id="什么是LiveData"><a href="#什么是LiveData" class="headerlink" title="什么是LiveData"></a><strong>什么是LiveData</strong></h2><p>LiveData 组件是 Jetpack 新推出的基于观察者的消息订阅/分发组件，具有宿主（Activity、Fragment）生命周期感知能力，这种感知能力可<strong>确保 LiveData 仅分发消息给处于活跃状态的观察者，即只有处于活跃状态的观察者才能收到消息</strong>。</p>
+<blockquote>
+<p>活跃状态：通常情况下等于 Observer 所在宿主处于 started，resumed 状态，如果使用 observeForever 注册的，则一直处于活跃状态。</p>
+</blockquote>
+<p>LiveData 的消息分发机制，是以往的 Handler、EventBus、RxjavaBus 无法比拟的，它们不会顾及当前页面是否可见，一股脑的有消息就转发。导致即便<strong>应用在后台页面不可见的情况下还在做一些无用的工作抢占资源</strong>。举个例子，细心的同学可以发现微信消息列表是在页面可见状态时才会更新列表最新信息的。</p>
+<p>LiveData 的出现解决了以往使用 callback 回调可能带来的NPE，生命周期越界，后台任务抢占资源等问题。</p>
+<h2 id="LiveData的优势"><a href="#LiveData的优势" class="headerlink" title="LiveData的优势"></a><strong>LiveData的优势</strong></h2><p><strong>确保界面符合数据状态</strong>LiveData 遵循观察者模式。当生命周期状态发生变化时，LiveData 会通知 [<code>Observer</code>]对象并把最新数据派发给它。观察者可以在收到<code>onChanged</code>事件时更新界面，而不是在每次数据发生更改时立即更新界面。</p>
+<p><strong>不再需要手动处理生命周期</strong>只需要观察相关数据，不用手动停止或恢复观察。LiveData 会自动管理Observer的反注册，因为它能感知宿主生命周期的变化，并在宿主生命周期的<code>onDestory</code>自动进行反注册。因此使用<code>LiveData</code>做消息分发不会发生内存泄漏</p>
+<p><strong>数据始终保持最新状态</strong>如果宿主的生命周期变为非活跃状态，它会在再次变为活跃状态时接收最新的数据。例如，曾经在后台的 Activity 会在返回前台后立即接收最新的数据。</p>
+<p><strong>支持黏性事件的分发</strong>即先发送一条数据，后注册一个观察者，默认是能够收到之前发送的那条数据的</p>
+<p><strong>共享资源</strong>我们可以使用单例模式拓展 <code>LiveData</code>，实现全局的消息分发总线。</p>
+<h1 id="LiveData-实现原理"><a href="#LiveData-实现原理" class="headerlink" title="LiveData 实现原理"></a>LiveData 实现原理</h1><p>黏性消息分发流程，即新注册的 observer 也能接收到前面发送的最后一条数据。原因就在于LiveData 每次发送一条数据它的 mVersion 都会 +1。但是新注册的 Observer 的 lastVersion=0 ，图中的 considerNotify 方法就会把前面发送的数据分发给新注册的 Observer 了。</p>
+<h2 id="LiveData-注册观察者触发消息分发流程原理分析"><a href="#LiveData-注册观察者触发消息分发流程原理分析" class="headerlink" title="LiveData 注册观察者触发消息分发流程原理分析"></a>LiveData 注册观察者触发消息分发流程原理分析</h2><p>observe 注册时，可以主动跟宿主生命周期绑定，不用反注册：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">observe</span><span class="params">(<span class="meta">@NonNull</span> LifecycleOwner owner, <span class="meta">@NonNull</span> Observer&lt;? <span class="keyword">super</span> T&gt; observer)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//1. 首先来个断言，这个方法只能在主线程调用，observeForever也是。</span></span><br><span class="line">        assertMainThread(<span class="string">&quot;observe&quot;</span>);</span><br><span class="line">        <span class="comment">//2.其次把注册进来的observer包装成 一个具有生命周边边界的观察者</span></span><br><span class="line">        <span class="comment">//它能监听宿主被销毁的事件，从而主动的把自己反注册，避免内存泄漏</span></span><br><span class="line">        <span class="comment">//此时观察者是否处于活跃状态就等于宿主是否可见</span></span><br><span class="line">        LifecycleBoundObserver wrapper = <span class="keyword">new</span> LifecycleBoundObserver(owner, observer);</span><br><span class="line">        <span class="comment">//3.接着会判断该观察是否已经注册过了，如果是则抛异常,所以要注意，不允许重复注册</span></span><br><span class="line">        ObserverWrapper existing = mObservers.putIfAbsent(observer, wrapper);</span><br><span class="line">        <span class="keyword">if</span> (existing != <span class="keyword">null</span> &amp;&amp; !existing.isAttachedTo(owner)) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalArgumentException(<span class="string">&quot;Cannot add the same observer&quot;</span></span><br><span class="line">                    + <span class="string">&quot; with different lifecycles&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//4.这一步才是关键</span></span><br><span class="line">        <span class="comment">//利用Lifecycle，把观察者注册到进去，才能监听到宿主生命周期状态的变化，对不对？</span></span><br><span class="line">        <span class="comment">//根据上节的分析，一旦一个新的观察者被添加，Lifecycle也会同步它的状态和宿主一致对不对？此时会触发观察者的onStateChanged方法</span></span><br><span class="line">        owner.getLifecycle().addObserver(wrapper);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>LifecycleBoundObserver 监听宿主的生命周期，并且宿主不可见时不分发任何数据：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LifecycleBoundObserver</span> <span class="keyword">extends</span> <span class="title">ObserverWrapper</span> <span class="keyword">implements</span> <span class="title">LifecycleEventObserver</span> </span>&#123;</span><br><span class="line">        LifecycleBoundObserver(<span class="meta">@NonNull</span> LifecycleOwner owner, Observer&lt;? <span class="keyword">super</span> T&gt; observer) &#123;</span><br><span class="line">            <span class="keyword">super</span>(observer);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">boolean</span> <span class="title">shouldBeActive</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="comment">//使用observer方法注册的观察者都会被包装成LifecycleBoundObserver</span></span><br><span class="line">        <span class="comment">//观察者是否活跃就等于宿主 的状态是否大于等于STARTED，</span></span><br><span class="line">        <span class="comment">//如果页面当前不可见，你发送了一条消息，此时是不会被分发的，可以避免后台任务抢占资源,当页面恢复可见才会分发。</span></span><br><span class="line">        <span class="comment">//注意：如果使用observerForever注册的观察者，</span></span><br><span class="line">        <span class="comment">//会被包装成AlwaysActiveObserver,它的shouldBeActive一致返回true.即便在页面不可见也能收到数据</span></span><br><span class="line">            <span class="keyword">return</span> mOwner.getLifecycle().getCurrentState().isAtLeast(STARTED);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Override</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onStateChanged</span><span class="params">(<span class="meta">@NonNull</span> LifecycleOwner source,</span></span></span><br><span class="line"><span class="function"><span class="params">                <span class="meta">@NonNull</span> Lifecycle.Event event)</span> </span>&#123;</span><br><span class="line">                <span class="comment">//在这里如果监听到宿主被销毁了，则主动地把自己从livedata的观察者中移除掉</span></span><br><span class="line">            <span class="keyword">if</span> (mOwner.getLifecycle().getCurrentState() == DESTROYED) &#123;</span><br><span class="line">                removeObserver(mObserver);</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//否则说明宿主的状态发生了变化，此时会判断宿主是否处于活跃状态</span></span><br><span class="line">            activeStateChanged(shouldBeActive());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>ObserverWrapper 状态变更后，如果观察者处于活跃状态会触发数据的分发流程：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">ObserverWrapper</span></span>&#123;</span><br><span class="line">        <span class="keyword">final</span> Observer&lt;? <span class="keyword">super</span> T&gt; mObserver;</span><br><span class="line">        <span class="keyword">boolean</span> mActive;</span><br><span class="line">        <span class="keyword">int</span> mLastVersion = START_VERSION<span class="comment">//这里就等于-1,没有主动和LiveData的mVersion对齐，为黏性事件埋下了伏笔</span></span><br><span class="line">        </span><br><span class="line">        <span class="function"><span class="keyword">void</span> <span class="title">activeStateChanged</span><span class="params">(<span class="keyword">boolean</span> newActive)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (newActive == mActive) &#123;</span><br><span class="line">                <span class="keyword">return</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//更改观察者的状态</span></span><br><span class="line">            mActive = newActive;</span><br><span class="line">            <span class="keyword">boolean</span> wasInactive = LiveData.<span class="keyword">this</span>.mActiveCount == <span class="number">0</span>;</span><br><span class="line">            <span class="comment">//如果此时有且只有一个活跃的观察者则触发onActive</span></span><br><span class="line">            LiveData.<span class="keyword">this</span>.mActiveCount += mActive ? <span class="number">1</span> : -<span class="number">1</span>;</span><br><span class="line">            <span class="keyword">if</span> (wasInactive &amp;&amp; mActive) &#123;</span><br><span class="line">                onActive();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//没有任何一个活跃的观察者则触发onInactive</span></span><br><span class="line">            <span class="comment">//利用这个方法被触发的时机，可以做很多事，比如懒加载，资源释放等</span></span><br><span class="line">            <span class="keyword">if</span> (LiveData.<span class="keyword">this</span>.mActiveCount == <span class="number">0</span> &amp;&amp; !mActive) &#123;</span><br><span class="line">                onInactive();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="comment">//如果此时观察者处于活跃状态,下面就开始分发数据了</span></span><br><span class="line">            <span class="comment">//请注意，这里传递了this = observer</span></span><br><span class="line">            <span class="keyword">if</span> (mActive) &#123;</span><br><span class="line">                dispatchingValue(<span class="keyword">this</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>dispatchingValue 数据分发流程控制：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">dispatchingValue</span><span class="params">(<span class="meta">@Nullable</span> ObserverWrapper initiator)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (mDispatchingValue) &#123;</span><br><span class="line">            mDispatchInvalidated = <span class="keyword">true</span>;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        mDispatchingValue = <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">do</span> &#123;</span><br><span class="line">            mDispatchInvalidated = <span class="keyword">false</span>;</span><br><span class="line">            <span class="keyword">if</span> (initiator != <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="comment">//如果传递的观察者不为空，则把数据分发给他自己。这个流程是新注册观察者的时候会被触发</span></span><br><span class="line">                considerNotify(initiator);</span><br><span class="line">                initiator = <span class="keyword">null</span>;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">//否则遍历集合中所有已注册的的观察者，逐个调用considerNotify，分发数据</span></span><br><span class="line">                <span class="keyword">for</span> (Iterator&lt;Map.Entry&lt;Observer&lt;? <span class="keyword">super</span> T&gt;, ObserverWrapper&gt;&gt; iterator =</span><br><span class="line">                        mObservers.iteratorWithAdditions(); iterator.hasNext(); ) &#123;</span><br><span class="line">                    considerNotify(iterator.next().getValue());</span><br><span class="line">                    <span class="keyword">if</span> (mDispatchInvalidated) &#123;</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">while</span> (mDispatchInvalidated);</span><br><span class="line">        mDispatchingValue = <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>considerNotify 数据真正分发的地方，需要满足三个套件：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">considerNotify</span><span class="params">(ObserverWrapper observer)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//观察者当前状态不活跃不分发</span></span><br><span class="line">        <span class="keyword">if</span> (!observer.mActive) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//观察者所在宿主是否处于活跃状态,否则不分发，并且更改观察者的状态为false</span></span><br><span class="line">        <span class="keyword">if</span> (!observer.shouldBeActive()) &#123;</span><br><span class="line">            observer.activeStateChanged(<span class="keyword">false</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//此处判断观察者接收消息的次数是否大于等于 发送消息的次数</span></span><br><span class="line">        <span class="comment">//但是observer被创建之初verison=-1 </span></span><br><span class="line">        <span class="comment">//如果此时LiveData已经发送过数据了。这里就不满足了，就出现黏性事件了，后注册的观察者收到了前面发送的消息。</span></span><br><span class="line">        <span class="keyword">if</span> (observer.mLastVersion &gt;= mVersion) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//每分发一次消息，则把观察者和LiveData的version对齐，防止重复发送</span></span><br><span class="line">        observer.mLastVersion = mVersion;</span><br><span class="line">        <span class="comment">//最后的数据传递</span></span><br><span class="line">        observer.mObserver.onChanged((T) mData);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>普通消息分发流程。即调用 postValue，setValue 才会触发消息的分发：</p>
+<p><img src="https://juxinyue.oss-cn-hangzhou.aliyuncs.com/5ee8243109c6b1c211470764.png?Expires=1608131336&OSSAccessKeyId=TMP.3KdayMHqr52vE1TonAijnMY1hksV2KDznwRURfdJY3WfgWUshDBzCLbunqv9JQQ1sZirjmnU9kpFMfpff6MjeeJmREU8HD&Signature=smpYlrSEN5Nil2jEiUIIsaBb08s=" alt="LiveData%20%E6%9E%B6%E6%9E%84%E7%BB%84%E4%BB%B6%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90%203f9fc9a684d24a978a9ac59d71f35860/5ee8243109c6b1c211470764.png"></p>
+<p>我们经常会使用<code>observer()</code>,<code>observeForever()</code>去注册观察者，它俩有什么区别呢？</p>
+<ul>
+<li>**observer()**：不需要手动反注册，并且宿主不可见时收不到消息，当宿主恢复可见时，会立刻收到最新的数据；</li>
+<li>**observeForever()**：需要自行手动反注册，并且无论宿主是否可见，都能够收到消息；</li>
+<li>可以充分利用 onActive() 方法被激活的时机，来实现一些数据懒加载的功能。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android/" rel="tag"># Android</a>
+              <a href="/tags/Jetpack/" rel="tag"># Jetpack</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/12/16/%E6%88%91%E4%B8%BA%E4%BB%80%E4%B9%88%E8%B6%8A%E6%9D%A5%E8%B6%8A%E4%B8%8D%E5%96%9C%E6%AC%A2%E6%9D%AD%E5%B7%9E%E4%BA%86/" rel="prev" title="我为什么越来越不喜欢杭州了">
+      <i class="fa fa-chevron-left"></i> 我为什么越来越不喜欢杭州了
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%8F%90%E7%BA%B2"><span class="nav-number">1.</span> <span class="nav-text">提纲</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFLiveData"><span class="nav-number">1.1.</span> <span class="nav-text">什么是LiveData</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LiveData%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="nav-number">1.2.</span> <span class="nav-text">LiveData的优势</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#LiveData-%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">LiveData 实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#LiveData-%E6%B3%A8%E5%86%8C%E8%A7%82%E5%AF%9F%E8%80%85%E8%A7%A6%E5%8F%91%E6%B6%88%E6%81%AF%E5%88%86%E5%8F%91%E6%B5%81%E7%A8%8B%E5%8E%9F%E7%90%86%E5%88%86%E6%9E%90"><span class="nav-number">2.1.</span> <span class="nav-text">LiveData 注册观察者触发消息分发流程原理分析</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">San Tu</p>
+  <div class="site-description" itemprop="description">希望鞠昕玥小朋友开心每一天</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/juyao" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;juyao" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/juyao0909@gmail.com" title="E-Mail → juyao0909@gmail.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/aiyujie1314" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;aiyujie1314" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1356350562&auto=1&height=66"></iframe>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">San Tu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+    <script defer src="/lib/three/three-waves.min.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
