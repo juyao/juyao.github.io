@@ -27,14 +27,14 @@
 <meta property="og:site_name" content="鞠昕玥 HappyEveryDay">
 <meta property="og:description" content="提纲 什么是LivaData LiveData衍生类 LiveData核心方法 LiveData事件分发实现原理">
 <meta property="og:locale">
-<meta property="og:image" content="https://juxinyue.oss-cn-hangzhou.aliyuncs.com/5ee8243109c6b1c211470764.png?Expires=1608131336&OSSAccessKeyId=TMP.3KdayMHqr52vE1TonAijnMY1hksV2KDznwRURfdJY3WfgWUshDBzCLbunqv9JQQ1sZirjmnU9kpFMfpff6MjeeJmREU8HD&Signature=smpYlrSEN5Nil2jEiUIIsaBb08s=">
+<meta property="og:image" content="https://juxinyue.oss-cn-hangzhou.aliyuncs.com/5ee8243109c6b1c211470764.png">
 <meta property="article:published_time" content="2020-12-16T14:11:19.000Z">
-<meta property="article:modified_time" content="2020-12-16T15:07:18.328Z">
+<meta property="article:modified_time" content="2020-12-16T15:17:45.248Z">
 <meta property="article:author" content="San Tu">
 <meta property="article:tag" content="Android">
 <meta property="article:tag" content="Jetpack">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://juxinyue.oss-cn-hangzhou.aliyuncs.com/5ee8243109c6b1c211470764.png?Expires=1608131336&OSSAccessKeyId=TMP.3KdayMHqr52vE1TonAijnMY1hksV2KDznwRURfdJY3WfgWUshDBzCLbunqv9JQQ1sZirjmnU9kpFMfpff6MjeeJmREU8HD&Signature=smpYlrSEN5Nil2jEiUIIsaBb08s=">
+<meta name="twitter:image" content="https://juxinyue.oss-cn-hangzhou.aliyuncs.com/5ee8243109c6b1c211470764.png">
 
 <link rel="canonical" href="http://example.com/2020/12/16/%E6%9E%B6%E6%9E%84%E7%BB%84%E4%BB%B6%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/">
 
@@ -199,7 +199,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2020-12-16 22:11:19 / Modified: 23:07:18" itemprop="dateCreated datePublished" datetime="2020-12-16T22:11:19+08:00">2020-12-16</time>
+              <time title="Created: 2020-12-16 22:11:19 / Modified: 23:17:45" itemprop="dateCreated datePublished" datetime="2020-12-16T22:11:19+08:00">2020-12-16</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -258,7 +258,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">considerNotify</span><span class="params">(ObserverWrapper observer)</span> </span>&#123;</span><br><span class="line">        <span class="comment">//观察者当前状态不活跃不分发</span></span><br><span class="line">        <span class="keyword">if</span> (!observer.mActive) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//观察者所在宿主是否处于活跃状态,否则不分发，并且更改观察者的状态为false</span></span><br><span class="line">        <span class="keyword">if</span> (!observer.shouldBeActive()) &#123;</span><br><span class="line">            observer.activeStateChanged(<span class="keyword">false</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//此处判断观察者接收消息的次数是否大于等于 发送消息的次数</span></span><br><span class="line">        <span class="comment">//但是observer被创建之初verison=-1 </span></span><br><span class="line">        <span class="comment">//如果此时LiveData已经发送过数据了。这里就不满足了，就出现黏性事件了，后注册的观察者收到了前面发送的消息。</span></span><br><span class="line">        <span class="keyword">if</span> (observer.mLastVersion &gt;= mVersion) &#123;</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//每分发一次消息，则把观察者和LiveData的version对齐，防止重复发送</span></span><br><span class="line">        observer.mLastVersion = mVersion;</span><br><span class="line">        <span class="comment">//最后的数据传递</span></span><br><span class="line">        observer.mObserver.onChanged((T) mData);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
 
 <p>普通消息分发流程。即调用 postValue，setValue 才会触发消息的分发：</p>
-<p><img src="https://juxinyue.oss-cn-hangzhou.aliyuncs.com/5ee8243109c6b1c211470764.png?Expires=1608131336&OSSAccessKeyId=TMP.3KdayMHqr52vE1TonAijnMY1hksV2KDznwRURfdJY3WfgWUshDBzCLbunqv9JQQ1sZirjmnU9kpFMfpff6MjeeJmREU8HD&Signature=smpYlrSEN5Nil2jEiUIIsaBb08s=" alt="LiveData%20%E6%9E%B6%E6%9E%84%E7%BB%84%E4%BB%B6%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90%203f9fc9a684d24a978a9ac59d71f35860/5ee8243109c6b1c211470764.png"></p>
+<p><img src="https://juxinyue.oss-cn-hangzhou.aliyuncs.com/5ee8243109c6b1c211470764.png" alt="LiveData%20%E6%9E%B6%E6%9E%84%E7%BB%84%E4%BB%B6%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90%203f9fc9a684d24a978a9ac59d71f35860/5ee8243109c6b1c211470764.png"></p>
 <p>我们经常会使用<code>observer()</code>,<code>observeForever()</code>去注册观察者，它俩有什么区别呢？</p>
 <ul>
 <li>**observer()**：不需要手动反注册，并且宿主不可见时收不到消息，当宿主恢复可见时，会立刻收到最新的数据；</li>
