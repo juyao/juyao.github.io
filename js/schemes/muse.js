@@ -110,8 +110,10 @@ document.addEventListener('DOMContentLoaded', () => {
   updateFooterPosition();
   window.addEventListener('resize', updateFooterPosition);
   window.addEventListener('scroll', updateFooterPosition);
+});
 
-  function getLongDate() {
+
+ function getLongDate() {
     let beginTime = new Date("2020-08-23 03:26:00");
     let timeSecond = new Date().getTime() - beginTime.getTime();
     let str = secondsFormat(Math.floor(timeSecond / 1000));
@@ -128,4 +130,3 @@ document.addEventListener('DOMContentLoaded', () => {
     }分${second < 10 ? "0" + second : second}秒`;
   }
   getLongDate();
-});
