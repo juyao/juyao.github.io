@@ -114,7 +114,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
  function getLongDate() {
-    let beginTime = new Date("2020-08-23 03:26:00");
+      var time = "2020-08-23 03:26:00";
+      time = time.replace(/-/g,':').replace(' ',':');
+      time = time.split(':');
+      var beginTime = new Date(time[0],(time[1]-1),time[2],time[3],time[4],time[5]);
+    //let beginTime = new Date("2020,08,23,03,26,00");
+    console.log("==========beginTime="+beginTime)
     let timeSecond = new Date().getTime() - beginTime.getTime();
     let str = secondsFormat(Math.floor(timeSecond / 1000));
     document.getElementById("nowTime").innerHTML = str;
