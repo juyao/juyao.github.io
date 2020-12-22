@@ -110,4 +110,22 @@ document.addEventListener('DOMContentLoaded', () => {
   updateFooterPosition();
   window.addEventListener('resize', updateFooterPosition);
   window.addEventListener('scroll', updateFooterPosition);
+
+  function getLongDate() {
+    let beginTime = new Date("2020-08-23 03:26:00");
+    let timeSecond = new Date().getTime() - beginTime.getTime();
+    let str = secondsFormat(Math.floor(timeSecond / 1000));
+    document.getElementById("nowTime").innerHTML = str;
+    setTimeout(getLongDate, 1000);
+  }
+  function secondsFormat(s) {
+    var day = Math.floor(s / (24 * 3600)); // Math.floor()向下取整
+    var hour = Math.floor((s - day * 24 * 3600) / 3600);
+    var minute = Math.floor((s - day * 24 * 3600 - hour * 3600) / 60);
+    var second = s - day * 24 * 3600 - hour * 3600 - minute * 60;
+    return `鞠昕玥小朋友下凡已经${day}天${hour < 10 ? "0" + hour : hour}小时${
+      minute < 10 ? "0" + minute : minute
+    }分${second < 10 ? "0" + second : second}秒`;
+  }
+  getLongDate();
 });
