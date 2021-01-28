@@ -27,14 +27,14 @@
 <meta property="og:site_name" content="鞠昕玥 HappyEveryDay">
 <meta property="og:description" content="提纲 什么是Lifecycle 如何使用 Lifecycle 观察宿主状态 Fragment 是如何实现 Lifecycle 的 Activity 是如何实现 Lifecycle 的 Lifecycle 是如何分发宿状态的。">
 <meta property="og:locale">
-<meta property="og:image" content="http://example.com/2020/10/26/Lifecycle%20%E6%9E%B6%E6%9E%84%E7%BB%84%E4%BB%B6%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/LifecycleSrc/WX20200803-1343412x.png">
+<meta property="og:image" content="http://example.com/2020/10/26/Lifecycle%20%E6%9E%B6%E6%9E%84%E7%BB%84%E4%BB%B6%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/WX20200803-1343412x.png">
 <meta property="article:published_time" content="2020-10-26T06:16:28.000Z">
 <meta property="article:modified_time" content="2020-12-14T16:03:11.635Z">
 <meta property="article:author" content="San Tu">
 <meta property="article:tag" content="Android">
 <meta property="article:tag" content="Jetpack">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2020/10/26/Lifecycle%20%E6%9E%B6%E6%9E%84%E7%BB%84%E4%BB%B6%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/LifecycleSrc/WX20200803-1343412x.png">
+<meta name="twitter:image" content="http://example.com/2020/10/26/Lifecycle%20%E6%9E%B6%E6%9E%84%E7%BB%84%E4%BB%B6%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/WX20200803-1343412x.png">
 
 <link rel="canonical" href="http://example.com/2020/10/26/Lifecycle%20%E6%9E%B6%E6%9E%84%E7%BB%84%E4%BB%B6%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/">
 
@@ -262,7 +262,7 @@
 <li><strong>宿主的状态</strong> ：这个意思是指宿主执行了上述方法后，它所处的生命状态</li>
 </ul>
 <p>从下面这张图不难看出宿主生命周期与宿主状态的对应关系分别为onCreate-Created、onStart-Started、onResume-Resumed、onpause-Started、onStop-Created、onDestroy-Destroyed，这里不用全部记住有个印象即可。</p>
-<p><img src="LifecycleSrc/WX20200803-1343412x.png" alt="LifecycleSrc/WX20200803-1343412x.png"></p>
+<p><img src="/2020/10/26/Lifecycle%20%E6%9E%B6%E6%9E%84%E7%BB%84%E4%BB%B6%E5%8E%9F%E7%90%86%E8%A7%A3%E6%9E%90/WX20200803-1343412x.png" alt="LifecycleSrc/WX20200803-1343412x.png"></p>
 <p><strong>添加 observer 时，完整的生命周期事件分发</strong></p>
 <p>基于 Lifecycle 的特性我们在任意生命周期方法内注册观察者都能接收到完成的生命周期事件，比如在onResume 中注册一个观察者，它会依次收到：</p>
 <p><code>LifecycleEvent.onCreate -&gt; LifecycleEvent.onStart -&gt; LifecycleEvent.onResume</code></p>
@@ -372,7 +372,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">7</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
