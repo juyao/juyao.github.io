@@ -20,18 +20,26 @@
     var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
   </script>
 
-  <meta name="description" content="希望鞠昕玥小朋友开心每一天">
+  <meta name="description" content="&#x2F;概念&#x2F;Hash一般翻译做“散列”，也有直接音译为“哈希”的，就是把任意长度的输入，通过散列算法，变换成固定长度的输出，该输出就是散列值 基本特性根据同一散列函数计算出的散列值如果不同，那么输入值肯定也不同。但是，根据同一散列函数计算出的散列值如果相同，输入值不一定相同">
 <meta property="og:type" content="article">
 <meta property="og:title" content="HashMap彻底解剖">
 <meta property="og:url" content="http://example.com/2021/01/28/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96/index.html">
 <meta property="og:site_name" content="鞠昕玥 HappyEveryDay">
-<meta property="og:description" content="希望鞠昕玥小朋友开心每一天">
+<meta property="og:description" content="&#x2F;概念&#x2F;Hash一般翻译做“散列”，也有直接音译为“哈希”的，就是把任意长度的输入，通过散列算法，变换成固定长度的输出，该输出就是散列值 基本特性根据同一散列函数计算出的散列值如果不同，那么输入值肯定也不同。但是，根据同一散列函数计算出的散列值如果相同，输入值不一定相同">
 <meta property="og:locale">
+<meta property="og:image" content="http://example.com/2021/01/28/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96/hashMap.jpeg">
+<meta property="og:image" content="http://example.com/2021/01/28/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96%200cdac08673694e38b31f4184509ea9c3.jpg">
+<meta property="og:image" content="http://example.com/2021/01/28/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96/16.jpg">
+<meta property="og:image" content="http://example.com/2021/01/28/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96/Untitled.png">
+<meta property="og:image" content="http://example.com/2021/01/28/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96/Untitled%201.png">
+<meta property="og:image" content="http://example.com/2021/01/28/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96/Untitled%202.png">
+<meta property="og:image" content="http://example.com/2021/01/28/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96/Untitled%203.png">
 <meta property="article:published_time" content="2021-01-28T06:38:05.000Z">
-<meta property="article:modified_time" content="2021-01-28T06:38:05.091Z">
+<meta property="article:modified_time" content="2021-01-28T06:54:07.681Z">
 <meta property="article:author" content="San Tu">
 <meta property="article:tag" content="爱，成长">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/01/28/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96/hashMap.jpeg">
 
 <link rel="canonical" href="http://example.com/2021/01/28/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96/">
 
@@ -194,8 +202,9 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">Posted on</span>
+              
 
-              <time title="Created: 2021-01-28 14:38:05" itemprop="dateCreated datePublished" datetime="2021-01-28T14:38:05+08:00">2021-01-28</time>
+              <time title="Created: 2021-01-28 14:38:05 / Modified: 14:54:07" itemprop="dateCreated datePublished" datetime="2021-01-28T14:38:05+08:00">2021-01-28</time>
             </span>
 
           
@@ -209,7 +218,76 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h2 id="概念"><a href="#概念" class="headerlink" title="/概念/"></a>/概念/</h2><h3 id="Hash"><a href="#Hash" class="headerlink" title="Hash"></a>Hash</h3><p>一般翻译做“散列”，也有直接音译为“哈希”的，就是把任意长度的输入，通过散列算法，变换成固定长度的输出，该输出就是散列值</p>
+<h3 id="基本特性"><a href="#基本特性" class="headerlink" title="基本特性"></a>基本特性</h3><p>根据同一散列函数计算出的散列值如果不同，那么输入值肯定也不同。但是，根据同一散列函数计算出的散列值如果相同，输入值不一定相同</p>
+<a id="more"></a>
+<h3 id="碰撞"><a href="#碰撞" class="headerlink" title="碰撞"></a>碰撞</h3><p>两个不同的输入值，根据同一散列函数计算出的散列值相同的现象叫做碰撞</p>
+<h3 id="常见的解决碰撞的方法有以下几种："><a href="#常见的解决碰撞的方法有以下几种：" class="headerlink" title="常见的解决碰撞的方法有以下几种："></a>常见的解决碰撞的方法有以下几种：</h3><ul>
+<li>开放定址法</li>
+<li>链地址法</li>
+<li>再哈希法</li>
+<li>建立公共溢出区</li>
+</ul>
+<h3 id="HashMap里面实现一个静态内部类Entry，其重要的属性有-key-value-next，hash"><a href="#HashMap里面实现一个静态内部类Entry，其重要的属性有-key-value-next，hash" class="headerlink" title="HashMap里面实现一个静态内部类Entry，其重要的属性有 key , value, next，hash"></a>HashMap里面实现一个静态内部类Entry，其重要的属性有 key , value, next，hash</h3><h2 id="HashMap的数据结构"><a href="#HashMap的数据结构" class="headerlink" title="HashMap的数据结构"></a>HashMap的数据结构</h2><p>数组和链表。数组的特点是：寻址容易，插入和删除困难；而链表的特点是：寻址困难，插入和删除容易</p>
+<h3 id="HashMap里面实现一个静态内部类Entry，其重要的属性有-key-value-next，hash-1"><a href="#HashMap里面实现一个静态内部类Entry，其重要的属性有-key-value-next，hash-1" class="headerlink" title="HashMap里面实现一个静态内部类Entry，其重要的属性有 key , value, next，hash"></a>HashMap里面实现一个静态内部类Entry，其重要的属性有 key , value, next，hash</h3><p><img src="/2021/01/28/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96/hashMap.jpeg" alt="HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96%200cdac08673694e38b31f4184509ea9c3/hashMap.jpeg"></p>
+<h2 id="哈希函数"><a href="#哈希函数" class="headerlink" title="/哈希函数/"></a>/哈希函数/</h2><h3 id="HashMap-哈希函数步骤"><a href="#HashMap-哈希函数步骤" class="headerlink" title="HashMap 哈希函数步骤"></a>HashMap 哈希函数步骤</h3><ol>
+<li>对key对象的hashCode进行哈希扰动</li>
+<li>然后用位运算代替取模求出数组下标</li>
+</ol>
+<p>扰动是为了让hashcode的随机性更高，第二步取模就不会让所以的key都聚集在一起，提高散列均匀度。扰动可以看到hash()方法：</p>
+<p><strong>获取数组下标</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">final V putVal(int hash, K key, V value, boolean onlyIfAbsent,</span><br><span class="line">               boolean evict) &#123;</span><br><span class="line">        ....</span><br><span class="line">    if (**(p &#x3D; tab[i &#x3D; (n - 1) &amp; hash]) &#x3D;&#x3D; null**)</span><br><span class="line">        tab[i] &#x3D; newNode(hash, key, value, null);</span><br><span class="line">    else &#123;</span><br><span class="line">          ......</span><br></pre></td></tr></table></figure>
+
+<p>问题1:取模运算不是应该 <strong>hash%length</strong>？？？为什么是<strong>（length-1）&amp;hash</strong>  🙄</p>
+<p><img src="/2021/01/28/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96%200cdac08673694e38b31f4184509ea9c3.jpg" alt="HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96%200cdac08673694e38b31f4184509ea9c3.jpg"></p>
+<p><strong>总结</strong>：为了考虑性能，Java总采用按位与操作实现取模操作 <strong>h &amp; (length-1)= hash%length</strong></p>
+<p>问题二：这样位运算碰撞的几率是不是很高？？</p>
+<p><img src="/2021/01/28/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96/16.jpg" alt="HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96%200cdac08673694e38b31f4184509ea9c3/16.jpg"></p>
+<p>2：<strong>哈希扰动(jdk 1.8)</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">static final int hash(Object key) &#123;</span><br><span class="line">    int h;</span><br><span class="line">    return (key &#x3D;&#x3D; null) ? 0 : (h &#x3D; key.hashCode()) ^ (h &gt;&gt;&gt; 16);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>总结：就是低16位是和高16位进行异或，一般的数组长度都会比较短，取模运算中只有低位参与散列；高位与低位进行异或，让高位也得以参与散列运算，使得散列更加均匀</p>
+<p>如下图</p>
+<p><img src="/2021/01/28/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96/Untitled.png" alt="HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96%200cdac08673694e38b31f4184509ea9c3/Untitled.png"></p>
+<h3 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h3><ol>
+<li><strong>有效避免冲突措施是16位低位和16位高位进行异或，使得散列更加均匀</strong></li>
+<li><strong>取数组下标：位运算代替模运算，使得计算效率更加高效。也是为什么2的倍数的其中一点原因</strong></li>
+</ol>
+<h2 id="哈希冲突"><a href="#哈希冲突" class="headerlink" title="/哈希冲突/"></a>/哈希冲突/</h2><p>再优秀的哈希算法都永远解决不了冲突，也就是不同key经过hash计算之后得到数组下标相同。HashMap采用的是链地址法，<strong>JDK1.8增加了红黑树</strong>。当链表过长之后，会自动转化成红黑树提高查找效率。红黑树是一个<strong>查找效率很高</strong>的数据结构，时间复杂度为O(logN)，但红黑树只有在<strong>数据量较大时才能发挥它的优势</strong>。</p>
+<h3 id="转红黑树的限制"><a href="#转红黑树的限制" class="headerlink" title="转红黑树的限制"></a>转红黑树的限制</h3><ul>
+<li>当链表<strong>≥8</strong>且数组长度<strong>≥64</strong>时候才会转化为红黑树</li>
+<li>当链表长度<strong>≥8</strong>但是数组长度**&lt;64**那么是优先扩容，而不是转为红黑树</li>
+<li>当红黑树节点小于≤6,会自动转化链表</li>
+</ul>
+<h3 id="为什么数组≥64的条件才会转化红黑树？"><a href="#为什么数组≥64的条件才会转化红黑树？" class="headerlink" title="为什么数组≥64的条件才会转化红黑树？"></a>为什么数组≥64的条件才会转化红黑树？</h3><p>当数组长度16时候，链表长度≥8时候,至少是占用了最大限度的50%，意味着负载已经快要达到上限，此时如果转化成红黑树，之后的扩容又会再一次把红黑树拆分平均到新的数组中，这样非但没有带来性能的好处，反而会降低性能。所以优先考虑扩容</p>
+<h3 id="为什么链表≥8才会转化为红黑树？"><a href="#为什么链表≥8才会转化为红黑树？" class="headerlink" title="为什么链表≥8才会转化为红黑树？"></a>为什么链表≥8才会转化为红黑树？</h3><p><strong>树节点的比普通节点更大</strong>，<strong>在链表较短时红黑树并未能明显体现性能优势，反而会浪费空间</strong>，在链表较短是采用链表而不是红黑树。出现链表长度到达8的概率很低。所以正常情况夏链表是更加合适的。</p>
+<h2 id="扩容方案"><a href="#扩容方案" class="headerlink" title="/扩容方案/"></a>/扩容方案/</h2><h3 id="装载因子-HashMap中节点数-数组长度"><a href="#装载因子-HashMap中节点数-数组长度" class="headerlink" title="装载因子=HashMap中节点数/数组长度"></a>装载因子=HashMap中节点数/数组长度</h3><h3 id="JDK1-7-VS-JDK-1-8"><a href="#JDK1-7-VS-JDK-1-8" class="headerlink" title="JDK1.7  VS  JDK 1.8"></a>JDK1.7  VS  JDK 1.8</h3><p>  1.7之前的数据迁移比较简单，就是遍历所有的节点，把所有的节点依次通过hash函数计算新的下标，再插入到新数组的链表中。会产生一下缺点：</p>
+<ul>
+<li>每个节点都需要进行一次求余计算；</li>
+<li>插入到新的数组时候采用的是头插入法，在多线程环境下会形成链表环</li>
+</ul>
+<p>jdk1.8之后进行了优化，原因在于他控制数组的长度始终是2的整数次幂，每次扩展数组都是原来的2倍，带来的好处是key在新的数组的hash结果只有两种：在<strong>原来的位置</strong>，或者在<strong>原来位置+原数组长度</strong></p>
+<p><img src="/2021/01/28/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96/Untitled%201.png" alt="HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96%200cdac08673694e38b31f4184509ea9c3/Untitled%201.png"></p>
+<p>从图中我们可以看到，扩容重新计算的结果，仅仅取决于高一位的数值。如果高一位是0，那么就是在原位置，而如果是1，则加上原数组的长度。所以在数据迁移的时候只需要判断一个节点的高一位是1 or 0就可以得到他在新数组的位置，而不需要重复hash计算。HashMap把每个链表拆分成两个链表，对应原位置或原位置+原数组长度，再分别插入到新的数组中，保留原来的节点顺序，如下：</p>
+<p><img src="/2021/01/28/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96/Untitled%202.png" alt="HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96%200cdac08673694e38b31f4184509ea9c3/Untitled%202.png"></p>
+<h3 id="小结："><a href="#小结：" class="headerlink" title="小结："></a>小结：</h3><ol>
+<li>HashMap扩容机制结合了数组长度为2的整数次幂，高效的完成数据迁移，同时能有效避免头插法造成链表环。</li>
+</ol>
+<h3 id="修改数组长度有两种情况："><a href="#修改数组长度有两种情况：" class="headerlink" title="修改数组长度有两种情况："></a>修改数组长度有两种情况：</h3><ul>
+<li>初始值指定长度</li>
+<li>扩容时候增加的空间</li>
+</ul>
+<p>1:当我们初始化指定一个非2的整数次幂长度时，HashMap会调用tableSizeFor()方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * Returns a power of two size for the given target capacity.</span><br><span class="line"> *&#x2F;</span><br><span class="line">static final int tableSizeFor(int cap) &#123;</span><br><span class="line">    **int n &#x3D; cap - 1;**</span><br><span class="line">    n |&#x3D; n &gt;&gt;&gt; 1;</span><br><span class="line">    n |&#x3D; n &gt;&gt;&gt; 2;</span><br><span class="line">    n |&#x3D; n &gt;&gt;&gt; 4;</span><br><span class="line">    n |&#x3D; n &gt;&gt;&gt; 8;</span><br><span class="line">    n |&#x3D; n &gt;&gt;&gt; 16;</span><br><span class="line">    return (n &lt; 0) ? 1 : (n &gt;&#x3D; MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>总结：通过不断移位，然后|(与)运算，最后+1的到最近的2的倍数值</strong></p>
+<p>2:2的倍数扩容</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">if (oldCap &gt; 0) &#123;</span><br><span class="line">    if (oldCap &gt;&#x3D; MAXIMUM_CAPACITY) &#123;</span><br><span class="line">        threshold &#x3D; Integer.MAX_VALUE;</span><br><span class="line">        return oldTab;</span><br><span class="line">    &#125;</span><br><span class="line">    else if ((newCap &#x3D; oldCap &lt;&lt; 1) &lt; MAXIMUM_CAPACITY &amp;&amp;</span><br><span class="line">             oldCap &gt;&#x3D; DEFAULT_INITIAL_CAPACITY)</span><br><span class="line">        **newThr &#x3D; oldThr &lt;&lt; 1; &#x2F;&#x2F; double threshold**</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>总结：二进制左移1位扩容</strong></p>
+<h2 id="多线程并发访问线程安全"><a href="#多线程并发访问线程安全" class="headerlink" title="/多线程并发访问线程安全/"></a>/多线程并发访问线程安全/</h2><p>/</p>
+<h2 id="JDK1-7-与JDK1-8-对比"><a href="#JDK1-7-与JDK1-8-对比" class="headerlink" title="/JDK1.7 与JDK1.8 对比/"></a>/JDK1.7 与JDK1.8 对比/</h2><p><img src="/2021/01/28/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96/Untitled%203.png" alt="HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96%200cdac08673694e38b31f4184509ea9c3/Untitled%203.png"></p>
+
     </div>
 
     
@@ -285,6 +363,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">&#x2F;概念&#x2F;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Hash"><span class="nav-number">1.1.</span> <span class="nav-text">Hash</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E7%89%B9%E6%80%A7"><span class="nav-number">1.2.</span> <span class="nav-text">基本特性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A2%B0%E6%92%9E"><span class="nav-number">1.3.</span> <span class="nav-text">碰撞</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B8%B8%E8%A7%81%E7%9A%84%E8%A7%A3%E5%86%B3%E7%A2%B0%E6%92%9E%E7%9A%84%E6%96%B9%E6%B3%95%E6%9C%89%E4%BB%A5%E4%B8%8B%E5%87%A0%E7%A7%8D%EF%BC%9A"><span class="nav-number">1.4.</span> <span class="nav-text">常见的解决碰撞的方法有以下几种：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HashMap%E9%87%8C%E9%9D%A2%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E9%9D%99%E6%80%81%E5%86%85%E9%83%A8%E7%B1%BBEntry%EF%BC%8C%E5%85%B6%E9%87%8D%E8%A6%81%E7%9A%84%E5%B1%9E%E6%80%A7%E6%9C%89-key-value-next%EF%BC%8Chash"><span class="nav-number">1.5.</span> <span class="nav-text">HashMap里面实现一个静态内部类Entry，其重要的属性有 key , value, next，hash</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#HashMap%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">HashMap的数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#HashMap%E9%87%8C%E9%9D%A2%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E9%9D%99%E6%80%81%E5%86%85%E9%83%A8%E7%B1%BBEntry%EF%BC%8C%E5%85%B6%E9%87%8D%E8%A6%81%E7%9A%84%E5%B1%9E%E6%80%A7%E6%9C%89-key-value-next%EF%BC%8Chash-1"><span class="nav-number">2.1.</span> <span class="nav-text">HashMap里面实现一个静态内部类Entry，其重要的属性有 key , value, next，hash</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%93%88%E5%B8%8C%E5%87%BD%E6%95%B0"><span class="nav-number">3.</span> <span class="nav-text">&#x2F;哈希函数&#x2F;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#HashMap-%E5%93%88%E5%B8%8C%E5%87%BD%E6%95%B0%E6%AD%A5%E9%AA%A4"><span class="nav-number">3.1.</span> <span class="nav-text">HashMap 哈希函数步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9A"><span class="nav-number">3.2.</span> <span class="nav-text">总结：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%93%88%E5%B8%8C%E5%86%B2%E7%AA%81"><span class="nav-number">4.</span> <span class="nav-text">&#x2F;哈希冲突&#x2F;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BD%AC%E7%BA%A2%E9%BB%91%E6%A0%91%E7%9A%84%E9%99%90%E5%88%B6"><span class="nav-number">4.1.</span> <span class="nav-text">转红黑树的限制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E6%95%B0%E7%BB%84%E2%89%A564%E7%9A%84%E6%9D%A1%E4%BB%B6%E6%89%8D%E4%BC%9A%E8%BD%AC%E5%8C%96%E7%BA%A2%E9%BB%91%E6%A0%91%EF%BC%9F"><span class="nav-number">4.2.</span> <span class="nav-text">为什么数组≥64的条件才会转化红黑树？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%93%BE%E8%A1%A8%E2%89%A58%E6%89%8D%E4%BC%9A%E8%BD%AC%E5%8C%96%E4%B8%BA%E7%BA%A2%E9%BB%91%E6%A0%91%EF%BC%9F"><span class="nav-number">4.3.</span> <span class="nav-text">为什么链表≥8才会转化为红黑树？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%89%A9%E5%AE%B9%E6%96%B9%E6%A1%88"><span class="nav-number">5.</span> <span class="nav-text">&#x2F;扩容方案&#x2F;</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A3%85%E8%BD%BD%E5%9B%A0%E5%AD%90-HashMap%E4%B8%AD%E8%8A%82%E7%82%B9%E6%95%B0-%E6%95%B0%E7%BB%84%E9%95%BF%E5%BA%A6"><span class="nav-number">5.1.</span> <span class="nav-text">装载因子&#x3D;HashMap中节点数&#x2F;数组长度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JDK1-7-VS-JDK-1-8"><span class="nav-number">5.2.</span> <span class="nav-text">JDK1.7  VS  JDK 1.8</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93%EF%BC%9A"><span class="nav-number">5.3.</span> <span class="nav-text">小结：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E6%95%B0%E7%BB%84%E9%95%BF%E5%BA%A6%E6%9C%89%E4%B8%A4%E7%A7%8D%E6%83%85%E5%86%B5%EF%BC%9A"><span class="nav-number">5.4.</span> <span class="nav-text">修改数组长度有两种情况：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%B9%B6%E5%8F%91%E8%AE%BF%E9%97%AE%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8"><span class="nav-number">6.</span> <span class="nav-text">&#x2F;多线程并发访问线程安全&#x2F;</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK1-7-%E4%B8%8EJDK1-8-%E5%AF%B9%E6%AF%94"><span class="nav-number">7.</span> <span class="nav-text">&#x2F;JDK1.7 与JDK1.8 对比&#x2F;</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
