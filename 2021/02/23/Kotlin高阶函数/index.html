@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ch">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"example.com","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="什么是高阶函数？按照定义，高阶函数就是以另外一个函数作为参数或者返回值的函数。在Kotlin中，函数可以用lambda或者函数引用来表示。因此，任何以lambda或者函数引用作为参数的函数，或者返回值为lambda或者函数引用的函数，或者两者都满足的函数都是高阶函数。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kotlin高阶函数">
+<meta property="og:url" content="http://example.com/2021/02/23/Kotlin%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0/index.html">
+<meta property="og:site_name" content="鞠昕玥 HappyEveryDay">
+<meta property="og:description" content="什么是高阶函数？按照定义，高阶函数就是以另外一个函数作为参数或者返回值的函数。在Kotlin中，函数可以用lambda或者函数引用来表示。因此，任何以lambda或者函数引用作为参数的函数，或者返回值为lambda或者函数引用的函数，或者两者都满足的函数都是高阶函数。">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/2021/02/23/Kotlin%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0/WX20210222-173846.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190611150950647.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190611151101358.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pzcDc2NTA5ODA4NA==,size_16,color_FFFFFF,t_70">
+<meta property="article:published_time" content="2021-02-23T03:06:28.000Z">
+<meta property="article:modified_time" content="2021-02-23T06:38:16.193Z">
+<meta property="article:author" content="San Tu">
+<meta property="article:tag" content="Android">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/2021/02/23/Kotlin%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0/WX20210222-173846.png">
+
+<link rel="canonical" href="http://example.com/2021/02/23/Kotlin%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'ch'
+  };
+</script>
+
+  <title>Kotlin高阶函数 | 鞠昕玥 HappyEveryDay</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?f58d8dc38453662b64d98dbcd800759b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">鞠昕玥 HappyEveryDay</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">爱一直在</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <div class="reading-progress-bar"></div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="ch">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2021/02/23/Kotlin%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="San Tu">
+      <meta itemprop="description" content="希望鞠昕玥小朋友开心每一天">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="鞠昕玥 HappyEveryDay">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Kotlin高阶函数
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2021-02-23 11:06:28 / Modified: 14:38:16" itemprop="dateCreated datePublished" datetime="2021-02-23T11:06:28+08:00">2021-02-23</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF%E7%A7%AF%E7%B4%AF/" itemprop="url" rel="index"><span itemprop="name">技术积累</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="什么是高阶函数？"><a href="#什么是高阶函数？" class="headerlink" title="什么是高阶函数？"></a>什么是高阶函数？</h1><p>按照定义，高阶函数就是<strong>以另外一个函数作为参数或者返回值的函数</strong>。在Kotlin中，函数可以用lambda或者函数引用来表示。因此，任何以<code>lambda</code>或者函数引用作为参数的函数，或者返回值为<code>lambda</code>或者函数引用的函数，或者两者都满足的函数都是高阶函数。</p>
+<a id="more"></a>
+
+<h3 id="将函数用作函数参数的高阶函数"><a href="#将函数用作函数参数的高阶函数" class="headerlink" title="将函数用作函数参数的高阶函数"></a>将函数用作函数参数的高阶函数</h3><p>这里介绍的kotlin中let{}高阶函数。先看一看源码</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">inline</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;T, R&gt;</span> T.<span class="title">let</span><span class="params">(block: (<span class="type">T</span>) -&gt; <span class="type">R</span>)</span></span>: R &#123;</span><br><span class="line">    contract &#123;</span><br><span class="line">        callsInPlace(block, InvocationKind.EXACTLY_ONCE)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> block(<span class="keyword">this</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中参数block就是一个函数类型，下面会对let函数有专门的介绍</p>
+<h3 id="将函数用作一个函数的返回值的高阶函数"><a href="#将函数用作一个函数的返回值的高阶函数" class="headerlink" title="将函数用作一个函数的返回值的高阶函数"></a>将函数用作一个函数的返回值的高阶函数</h3><p>这里使用官网上的一个例子来讲解。lock()函数，先看一看他的源码实现</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fun</span> <span class="type">&lt;T&gt;</span> <span class="title">lock</span><span class="params">(lock: <span class="type">Lock</span>, body: () -&gt; <span class="type">T</span>)</span></span>: T &#123;</span><br><span class="line">    lock.lock()    </span><br><span class="line">		<span class="keyword">try</span> &#123;        </span><br><span class="line">					<span class="keyword">return</span> body()</span><br><span class="line">			   &#125;    </span><br><span class="line">		<span class="keyword">finally</span> &#123;</span><br><span class="line">	        lock.unlock()</span><br><span class="line">			    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ol>
+<li>从源码可以看出，该函数接受一个Lock类型的变量作为参数1，并且接受一个无参且返回类型为T的函数作为参数2.</li>
+<li>该函数的返回值为一个函数，我们可以看这一句代码return body()可以看出。</li>
+</ol>
+<h1 id="自定义高阶函数"><a href="#自定义高阶函数" class="headerlink" title="自定义高阶函数"></a>自定义高阶函数</h1><p>我们先看了一个例子：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//声明</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">debug</span><span class="params">(code: () -&gt; <span class="type">Unit</span>)</span></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (BuildConfig.DEBUG) &#123;</span><br><span class="line">        code()</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">//调用</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">onCreate</span><span class="params">(savedInstanceState: <span class="type">Bundle</span>?)</span></span> &#123;</span><br><span class="line">    debug &#123;</span><br><span class="line">        showDebugTools();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面定义了一个debug函数，这个函数的参数code也是一个函数,当只有是debug模式的时候，才会执行code函数里面的代码</p>
+<blockquote>
+<p>tip:当函数中只有一个函数作为参数，并且使用了lambda表达式作为对应的参数，那么可以省略函数的小括号()。<br>函数的最后一个参数是函数类型时，可以使用lambda表达式将函数参数写在参数列表括号外面。</p>
+</blockquote>
+<h1 id="标准高阶函数"><a href="#标准高阶函数" class="headerlink" title="标准高阶函数"></a>标准高阶函数</h1><h3 id="标准高阶函数的声明"><a href="#标准高阶函数的声明" class="headerlink" title="标准高阶函数的声明"></a>标准高阶函数的声明</h3><p>标准高阶函数声明在<code>Standard.kt</code>文件中，其中有<code>TODO</code>、<code>run</code>、<code>with</code>、<code>apply</code>、<code>also</code>、<code>let</code>、<code>takeIf</code>、<code>takeUnless</code>、<code>repeat</code>函数。我们将功能类似的函数放在一块对比，如<code>run &amp; with</code>、<code>apply &amp; also</code>、<code>takeIf &amp; takeUnless</code>、<code>let &amp; 扩展函数版本run</code>。</p>
+<h3 id="run-amp-with函数"><a href="#run-amp-with函数" class="headerlink" title="run&amp;with函数"></a>run&amp;with函数</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Calls the specified function [block] and returns its result.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@kotlin</span>.<span class="keyword">internal</span>.InlineOnly</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">inline</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;R&gt;</span> <span class="title">run</span><span class="params">(block: () -&gt; <span class="type">R</span>)</span></span>: R &#123;</span><br><span class="line">    contract &#123;</span><br><span class="line">        callsInPlace(block, InvocationKind.EXACTLY_ONCE)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> block()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Calls the specified function [block] with `this` value as its receiver and returns its result.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@kotlin</span>.<span class="keyword">internal</span>.InlineOnly</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">inline</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;T, R&gt;</span> T.<span class="title">run</span><span class="params">(block: <span class="type">T</span>.() -&gt; <span class="type">R</span>)</span></span>: R &#123;</span><br><span class="line">    contract &#123;</span><br><span class="line">        callsInPlace(block, InvocationKind.EXACTLY_ONCE)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> block()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Calls the specified function [block] with the given [receiver] as its receiver and returns its result.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@kotlin</span>.<span class="keyword">internal</span>.InlineOnly</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">inline</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;T, R&gt;</span> <span class="title">with</span><span class="params">(receiver: <span class="type">T</span>, block: <span class="type">T</span>.() -&gt; <span class="type">R</span>)</span></span>: R &#123;</span><br><span class="line">    contract &#123;</span><br><span class="line">        callsInPlace(block, InvocationKind.EXACTLY_ONCE)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> receiver.block()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>run函数的版本有两个版本，一个是普通版本的定义，一种是扩展函数版本从代码定义可以看到，<code>run函数</code>接受一个<strong>函数引用作为参数（高阶函数）</strong>，在内部仅仅只是调用了一下这个代码块并且返回block代码块的返回值。可以发现<code>with</code>和<code>run</code>都是返回了<code>block</code>（是个函数引用）的返回值。区别在哪:区别在于有个run是扩展函数，如果在使用之前需要判空，那么<code>扩展函数版本的run函数</code>的使用会比<code>with函数</code>优雅，如：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Yack!</span></span><br><span class="line">with(webview.settings) &#123;</span><br><span class="line">      <span class="keyword">this</span>?.javaScriptEnabled = <span class="literal">true</span></span><br><span class="line">      <span class="keyword">this</span>?.databaseEnabled = <span class="literal">true</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// Nice.</span></span><br><span class="line">webview.settings?.run &#123;</span><br><span class="line">    javaScriptEnabled = <span class="literal">true</span></span><br><span class="line">    databaseEnabled = <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到扩展函数版本的run函数在调用前可以先判断webview.settings是否为空，否则不进入函数体调用。</p>
+<h3 id="apply-amp-also"><a href="#apply-amp-also" class="headerlink" title="apply&amp;also"></a>apply&amp;also</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Calls the specified function [block] with `this` value as its receiver and returns `this` value.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@kotlin</span>.<span class="keyword">internal</span>.InlineOnly</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">inline</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;T&gt;</span> T.<span class="title">apply</span><span class="params">(block: <span class="type">T</span>.() -&gt; <span class="type">Unit</span>)</span></span>: T &#123;</span><br><span class="line">    contract &#123;</span><br><span class="line">        callsInPlace(block, InvocationKind.EXACTLY_ONCE)</span><br><span class="line">    &#125;</span><br><span class="line">    block()</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Calls the specified function [block] with `this` value as its argument and returns `this` value.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@kotlin</span>.<span class="keyword">internal</span>.InlineOnly</span><br><span class="line"><span class="meta">@SinceKotlin(<span class="meta-string">&quot;1.1&quot;</span>)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">inline</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;T&gt;</span> T.<span class="title">also</span><span class="params">(block: (<span class="type">T</span>) -&gt; <span class="type">Unit</span>)</span></span>: T &#123;</span><br><span class="line">    contract &#123;</span><br><span class="line">        callsInPlace(block, InvocationKind.EXACTLY_ONCE)</span><br><span class="line">    &#125;</span><br><span class="line">    block(<span class="keyword">this</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>apply</code>&amp;<code>also</code>最后都会返回接收者自身<code>T</code>，所以可以实现链式调用细化代码粒度，让代码更清晰，它们的区别是一个<code>apply</code>的<code>block</code>是用<code>T(也就是apply的接收者本身)</code>作为接收者，因此在<code>apply</code>的<code>block</code>内部可以访问到<code>T这个this</code>，<code>also</code>的<code>T</code>是被当做参数传入<code>block</code>的，所以在<code>also</code>的<code>block</code>内部需要用<code>it（lambda的唯一参数）</code>代表这个<code>also</code>的接收者<code>T</code>。</p>
+<p><strong>使用上:一般来说，<code>lambda</code>参数为<code>it</code>的函数比较适合用做读值多的场合，也可以使用命名参数将<code>it</code>改成合适的名字提升代码可读性，将<code>T</code>传入<code>block(T)</code>的场合比较适合用于写值，因为省了很多T变量的重复声明。</strong>【推荐】lambda表达式的block中，如果主要进行<strong>对某个实例的写操作，则该实例声明为<code>Receiver</code>**；如果</strong>主要是读操作，则该实例声明为参数<strong>。</strong>所以在写值操作多时使用apply代码块，在读值操作多时使用also代码块。**</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">inline</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;T&gt;</span> T.<span class="title">apply</span><span class="params">(block: <span class="type">T</span>.() -&gt; <span class="type">Unit</span>)</span></span>: T<span class="comment">//对T进行写操作，优先使用apply</span></span><br><span class="line"></span><br><span class="line">tvName.apply &#123;</span><br><span class="line">    text = <span class="string">&quot;Jacky&quot;</span></span><br><span class="line">    textSize = <span class="number">20f</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">inline</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;T&gt;</span> T.<span class="title">also</span><span class="params">(block: (<span class="type">T</span>) -&gt; <span class="type">Unit</span>)</span></span>: T <span class="comment">//对T进行读操作 优先使用also</span></span><br><span class="line"></span><br><span class="line">user.also &#123;</span><br><span class="line">    tvName.text = it.name</span><br><span class="line">    tvAge.text = it.age</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="let函数"><a href="#let函数" class="headerlink" title="let函数"></a>let函数</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Calls the specified function [block] with `this` value as its receiver and returns its result.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@kotlin</span>.<span class="keyword">internal</span>.InlineOnly</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">inline</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;T, R&gt;</span> T.<span class="title">run</span><span class="params">(block: <span class="type">T</span>.() -&gt; <span class="type">R</span>)</span></span>: R &#123;</span><br><span class="line">    contract &#123;</span><br><span class="line">        callsInPlace(block, InvocationKind.EXACTLY_ONCE)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> block()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Calls the specified function [block] with `this` value as its argument and returns its result.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@kotlin</span>.<span class="keyword">internal</span>.InlineOnly</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">inline</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;T, R&gt;</span> T.<span class="title">let</span><span class="params">(block: (<span class="type">T</span>) -&gt; <span class="type">R</span>)</span></span>: R &#123;</span><br><span class="line">    contract &#123;</span><br><span class="line">        callsInPlace(block, InvocationKind.EXACTLY_ONCE)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> block(<span class="keyword">this</span>)</span><br></pre></td></tr></table></figure>
+
+<p><code>let</code>这个函数和<code>扩展版本的run函数</code>非常像，所以在上面的代码我把它们放在一起对比，他们的区别在<code>run</code>的<code>block参数</code>是个<code>带run接收者T的函数引用</code>，而<code>let</code>的<code>block参数是</code>把<code>let的接收者T</code>当做参数传给<code>block</code>，因此他们的调用区别是使用<code>run</code>时，<code>block</code>内部的<code>this</code>是指向<code>T</code>的，而在<code>let</code>的<code>block</code>内部需要使用<code>it</code>来指向<code>T</code>，<code>let</code>的<code>block</code>内部的<code>this</code>指的是<code>T</code>外部的<code>this</code>，意思是类似于你在<code>Activity</code>里面用<code>let</code>，<code>let</code>的<code>block</code>里面的<code>this</code>就是这个<code>Activity实例</code>。</p>
+<p><strong><code>run</code>函数比较适合写值多的代码块，<code>let</code>函数比较适合读值多的代码块。</strong></p>
+<h3 id="let与also的返回值区别"><a href="#let与also的返回值区别" class="headerlink" title="let与also的返回值区别"></a>let与also的返回值区别</h3><p>let返回的是block的返回值，also返回的是接收者T自身，因此他们的链式调用有本质区别。<br>let能实现类似RxJava的map的效果</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">val</span> original = <span class="string">&quot;abc&quot;</span></span><br><span class="line"><span class="comment">// Evolve the value and send to the next chain</span></span><br><span class="line">original.let &#123;</span><br><span class="line">    println(<span class="string">&quot;The original String is <span class="variable">$it</span>&quot;</span>) <span class="comment">// &quot;abc&quot;</span></span><br><span class="line">    it.reversed() <span class="comment">// evolve it as parameter to send to next let</span></span><br><span class="line">&#125;.let &#123;</span><br><span class="line">    println(<span class="string">&quot;The reverse String is <span class="variable">$it</span>&quot;</span>) <span class="comment">// &quot;cba&quot;</span></span><br><span class="line">    it.length  <span class="comment">// can be evolve to other type</span></span><br><span class="line">&#125;.let &#123;</span><br><span class="line">    println(<span class="string">&quot;The length of the String is <span class="variable">$it</span>&quot;</span>) <span class="comment">// 3</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// Wrong</span></span><br><span class="line"><span class="comment">// Same value is sent in the chain (printed answer is wrong)</span></span><br><span class="line">original.also &#123;</span><br><span class="line">    println(<span class="string">&quot;The original String is <span class="variable">$it</span>&quot;</span>) <span class="comment">// &quot;abc&quot;</span></span><br><span class="line">    it.reversed() <span class="comment">// even if we evolve it, it is useless</span></span><br><span class="line">&#125;.also &#123;</span><br><span class="line">    println(<span class="string">&quot;The reverse String is <span class="subst">$&#123;it&#125;</span>&quot;</span>) <span class="comment">// &quot;abc&quot;</span></span><br><span class="line">    it.length  <span class="comment">// even if we evolve it, it is useless</span></span><br><span class="line">&#125;.also &#123;</span><br><span class="line">    println(<span class="string">&quot;The length of the String is <span class="subst">$&#123;it&#125;</span>&quot;</span>) <span class="comment">// &quot;abc&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// Corrected for also (i.e. manipulate as original string</span></span><br><span class="line"><span class="comment">// Same value is sent in the chain</span></span><br><span class="line">original.also &#123;</span><br><span class="line">    println(<span class="string">&quot;The original String is <span class="variable">$it</span>&quot;</span>) <span class="comment">// &quot;abc&quot;</span></span><br><span class="line">&#125;.also &#123;</span><br><span class="line">    println(<span class="string">&quot;The reverse String is <span class="subst">$&#123;it.reversed()&#125;</span>&quot;</span>) <span class="comment">// &quot;cba&quot;</span></span><br><span class="line">&#125;.also &#123;</span><br><span class="line">    println(<span class="string">&quot;The length of the String is <span class="subst">$&#123;it.length&#125;</span>&quot;</span>) <span class="comment">// 3</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在上面看来<code>T.also</code>好像毫无意义，因为我们可以很容易地将它们组合成一个功能块。但仔细想想，它也有一些优点：</p>
+<p>它可以在相同的对象上提供一个<strong>非常清晰的分离过程</strong>，即<strong>制作更小的功能部分</strong>。在使用之前，它可以实现非常强大的自我操纵，**实现链条建设者操作(builder 模式)**。</p>
+<h3 id="takeIf-amp-takeUnless"><a href="#takeIf-amp-takeUnless" class="headerlink" title="takeIf&amp;takeUnless"></a>takeIf&amp;takeUnless</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Returns `this` value if it satisfies the given [predicate] or `null`, if it doesn&#x27;t.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@kotlin</span>.<span class="keyword">internal</span>.InlineOnly</span><br><span class="line"><span class="meta">@SinceKotlin(<span class="meta-string">&quot;1.1&quot;</span>)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">inline</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;T&gt;</span> T.<span class="title">takeIf</span><span class="params">(predicate: (<span class="type">T</span>) -&gt; <span class="type">Boolean</span>)</span></span>: T? &#123;</span><br><span class="line">    contract &#123;</span><br><span class="line">        callsInPlace(predicate, InvocationKind.EXACTLY_ONCE)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">if</span> (predicate(<span class="keyword">this</span>)) <span class="keyword">this</span> <span class="keyword">else</span> <span class="literal">null</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Returns `this` value if it _does not_ satisfy the given [predicate] or `null`, if it does.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@kotlin</span>.<span class="keyword">internal</span>.InlineOnly</span><br><span class="line"><span class="meta">@SinceKotlin(<span class="meta-string">&quot;1.1&quot;</span>)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">inline</span> <span class="function"><span class="keyword">fun</span> <span class="type">&lt;T&gt;</span> T.<span class="title">takeUnless</span><span class="params">(predicate: (<span class="type">T</span>) -&gt; <span class="type">Boolean</span>)</span></span>: T? &#123;</span><br><span class="line">    contract &#123;</span><br><span class="line">        callsInPlace(predicate, InvocationKind.EXACTLY_ONCE)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">if</span> (!predicate(<span class="keyword">this</span>)) <span class="keyword">this</span> <span class="keyword">else</span> <span class="literal">null</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这两个函数是用来做有条件判断时使用的，<code>takeIf</code>是在<code>predicate</code>条件返回<code>true</code>时返回接收者自身，否者返回<code>null</code>，<code>takeUnless</code>则刚好相反，是在<code>predicate</code>为<code>false</code>时返回接收者自身，否则返回<code>null</code>。</p>
+<h3 id="repeat函数"><a href="#repeat函数" class="headerlink" title="repeat函数"></a>repeat函数</h3><figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Executes the given function [action] specified number of [times].</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * A zero-based index of current iteration is passed as a parameter to [action].</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@sample</span> samples.misc.ControlFlow.repeat</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@kotlin</span>.<span class="keyword">internal</span>.InlineOnly</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">inline</span> <span class="function"><span class="keyword">fun</span> <span class="title">repeat</span><span class="params">(times: <span class="type">Int</span>, action: (<span class="type">Int</span>) -&gt; <span class="type">Unit</span>)</span></span> &#123;</span><br><span class="line">    contract &#123; callsInPlace(action) &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (index <span class="keyword">in</span> <span class="number">0</span> until times) &#123;</span><br><span class="line">        action(index)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个函数就是把action代码块重复执行times次，action的参数就是当前执行的index（第几次）。</p>
+<h3 id="This-vs-it参数"><a href="#This-vs-it参数" class="headerlink" title="This vs. it参数"></a>This vs. it参数</h3><p>如果你检查<code>T.run</code>函数签名，你会注意到<code>T.run</code>只是作为扩展函数调用<code>block: T.()</code>。因此，所有的范围内，<code>T</code>可以被称为<code>this</code>。在编程中，<code>this</code>大部分时间可以省略。因此，在我们上面的例子中，我们可以在<code>println</code>声明中使用<code>$length</code>，而不是<code>$&#123;this.length&#125;</code>。我把这称为传递<code>this</code>参数。然而，对于<code>T.let</code>函数签名，你会注意到<code>T.let</code>把自己作为参数传递进去，即<code>block: (T)</code>。因此，这就像传递一个<code>lambda</code>参数。它可以在作用域范围内使用<code>it</code>作为引用。所以我把这称为传递<code>it</code>参数。从上面看，它似乎<code>T.run</code>是更优越，因为<code>T.let</code>更隐含，但是这是<code>T.let</code>函数有一些微妙的优势如下：</p>
+<p><code>T.let</code>相比外部类函数/成员，使用给定的变量函数/成员提供了更清晰的区分在<code>this</code>不能被省略的情况下，例如当它作为函数的参数被传递时<code>it</code>比<code>this</code>更短，更清晰。在<code>T.let</code>允许使用更好的变量命名，你可以转换<code>it</code>为其他名称。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">stringVariable?.let &#123;</span><br><span class="line">      nonNullString -&gt;</span><br><span class="line">      println(<span class="string">&quot;The non null string is <span class="variable">$nonNullString</span>&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="这几个函数的选择"><a href="#这几个函数的选择" class="headerlink" title="这几个函数的选择"></a>这几个函数的选择</h3><p><img src="/2021/02/23/Kotlin%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0/WX20210222-173846.png" alt="Kotlin%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0%203896d474b54440ebb3699b4acf5ee205/WX20210222-173846.png"></p>
+<h1 id="函数的闭包"><a href="#函数的闭包" class="headerlink" title="函数的闭包"></a>函数的闭包</h1><h3 id="什么是闭包"><a href="#什么是闭包" class="headerlink" title="什么是闭包"></a>什么是闭包</h3><p>我们都知道，程序的变量分为<strong>全局变量</strong>和<strong>局部变量</strong>，全局变量，顾名思义，其作用域是当前文件甚至文件外的所有地方；而局部变量，我们只能再其有限的作用域里获取。</p>
+<p><strong>那么，如何在外部调用局部变量呢？答案就是——闭包，与此给闭包下个定义：闭包就是能够读取其他函数内部变量的函数</strong></p>
+<p>首先看个简单的例子：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//这是一个返回值为一个函数的高阶函数</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">makeFun</span><span class="params">()</span></span>:()-&gt;<span class="built_in">Unit</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> conut = <span class="number">0</span></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="title">fun</span><span class="params">()</span></span>&#123;   <span class="comment">//返回一个匿名函数，这个函数持有count的状态</span></span><br><span class="line">        println(++conut)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> makeFun = makeFun() <span class="comment">//函数调用，返回一个函数</span></span><br><span class="line">    makeFun()       <span class="comment">//调用这个返回的函数，此时makeFun持有makeFun()内部变量的状态</span></span><br><span class="line">    makeFun()</span><br><span class="line">    makeFun()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行结果：</p>
+<p><img src="https://img-blog.csdnimg.cn/20190611150950647.png" alt="https://img-blog.csdnimg.cn/20190611150950647.png"></p>
+<p>在比如一个稍微复杂一点的例子，实现斐波那契数列</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//斐波那契数列</span></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">fibonacci</span><span class="params">()</span></span>:()-&gt;<span class="built_in">Long</span>&#123;</span><br><span class="line">    <span class="keyword">var</span> first = <span class="number">0L</span></span><br><span class="line">    <span class="keyword">var</span> second = <span class="number">1L</span></span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="title">fun</span><span class="params">()</span></span>:<span class="built_in">Long</span>&#123;  <span class="comment">//返回返回值为Long类型的函数</span></span><br><span class="line">        <span class="keyword">val</span> result = second</span><br><span class="line">        second += first</span><br><span class="line">        first = second - first</span><br><span class="line">        <span class="keyword">return</span> result</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fun</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="keyword">val</span> fibo = fibonacci()	<span class="comment">//此时，这个返回的函数fibo持有fibonnacci()函数内部变量的状态</span></span><br><span class="line">    println(fibo())</span><br><span class="line">    println(fibo())</span><br><span class="line">    println(fibo())</span><br><span class="line">    println(fibo())</span><br><span class="line">    println(fibo())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>测试运行</p>
+<p><img src="https://img-blog.csdnimg.cn/20190611151101358.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pzcDc2NTA5ODA4NA==,size_16,color_FFFFFF,t_70" alt="https://img-blog.csdnimg.cn/20190611151101358.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3pzcDc2NTA5ODA4NA==,size_16,color_FFFFFF,t_70"></p>
+<h1 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h1><p><a target="_blank" rel="noopener" href="https://www.kotlincn.net/docs/reference/lambdas.html">高阶函数与 lambda 表达式</a></p>
+<p><a target="_blank" rel="noopener" href="https://juejin.cn/post/6844903618043199496">Kotlin：高阶函数</a></p>
+<p><a target="_blank" rel="noopener" href="https://kaixue.io/tag/kotlin-higher-order-function/">Kotlin 高阶函数 - 码上开学</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Android/" rel="tag"># Android</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/01/28/HashMap%E5%BD%BB%E5%BA%95%E8%A7%A3%E5%89%96/" rel="prev" title="HashMap彻底解剖">
+      <i class="fa fa-chevron-left"></i> HashMap彻底解剖
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">什么是高阶函数？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%86%E5%87%BD%E6%95%B0%E7%94%A8%E4%BD%9C%E5%87%BD%E6%95%B0%E5%8F%82%E6%95%B0%E7%9A%84%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0"><span class="nav-number">1.0.1.</span> <span class="nav-text">将函数用作函数参数的高阶函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%86%E5%87%BD%E6%95%B0%E7%94%A8%E4%BD%9C%E4%B8%80%E4%B8%AA%E5%87%BD%E6%95%B0%E7%9A%84%E8%BF%94%E5%9B%9E%E5%80%BC%E7%9A%84%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0"><span class="nav-number">1.0.2.</span> <span class="nav-text">将函数用作一个函数的返回值的高阶函数</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0"><span class="nav-number">2.</span> <span class="nav-text">自定义高阶函数</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%A0%87%E5%87%86%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0"><span class="nav-number">3.</span> <span class="nav-text">标准高阶函数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E5%87%86%E9%AB%98%E9%98%B6%E5%87%BD%E6%95%B0%E7%9A%84%E5%A3%B0%E6%98%8E"><span class="nav-number">3.0.1.</span> <span class="nav-text">标准高阶函数的声明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#run-amp-with%E5%87%BD%E6%95%B0"><span class="nav-number">3.0.2.</span> <span class="nav-text">run&amp;with函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#apply-amp-also"><span class="nav-number">3.0.3.</span> <span class="nav-text">apply&amp;also</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#let%E5%87%BD%E6%95%B0"><span class="nav-number">3.0.4.</span> <span class="nav-text">let函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#let%E4%B8%8Ealso%E7%9A%84%E8%BF%94%E5%9B%9E%E5%80%BC%E5%8C%BA%E5%88%AB"><span class="nav-number">3.0.5.</span> <span class="nav-text">let与also的返回值区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#takeIf-amp-takeUnless"><span class="nav-number">3.0.6.</span> <span class="nav-text">takeIf&amp;takeUnless</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#repeat%E5%87%BD%E6%95%B0"><span class="nav-number">3.0.7.</span> <span class="nav-text">repeat函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#This-vs-it%E5%8F%82%E6%95%B0"><span class="nav-number">3.0.8.</span> <span class="nav-text">This vs. it参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%BF%99%E5%87%A0%E4%B8%AA%E5%87%BD%E6%95%B0%E7%9A%84%E9%80%89%E6%8B%A9"><span class="nav-number">3.0.9.</span> <span class="nav-text">这几个函数的选择</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%87%BD%E6%95%B0%E7%9A%84%E9%97%AD%E5%8C%85"><span class="nav-number">4.</span> <span class="nav-text">函数的闭包</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E9%97%AD%E5%8C%85"><span class="nav-number">4.0.1.</span> <span class="nav-text">什么是闭包</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">San Tu</p>
+  <div class="site-description" itemprop="description">希望鞠昕玥小朋友开心每一天</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/juyao" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;juyao" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="/juyao0909@gmail.com" title="E-Mail → juyao0909@gmail.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/aiyujie1314" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;aiyujie1314" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1356350562&auto=1&height=66"></iframe>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+      <div id="nowTime"></div>
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2020 – 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">San Tu</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+  <script defer src="/lib/three/three.min.js"></script>
+    <script defer src="/lib/three/three-waves.min.js"></script>
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"model":{"jsonPath":"/live2dw/assets/hijiki.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":true},"log":false,"pluginJsPath":"lib/","pluginModelPath":"assets/","pluginRootPath":"live2dw/","tagMode":false});</script></body>
+</html>
